@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Просмотр курсов</title>
+</head>
+<body>
+    <h1>Курсы из базы данных</h1>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>№</th>
+            <th>Название</th>
+            <th>ID курса</th>
+            <th>Ссылка</th>
+            <th>Краткое описание</th>
+            <th>Полное описание</th>
+            <th>Уровень сложности</th>
+            <th>Тег</th>
+            <th>Площадка</th>
+        </tr>
+        {% for row in rows %}
+        <tr>
+            <td>{{ row.id }}</td>
+            <td>{{ row.название }}</td>
+            <td>{{ row.id_курса }}</td>
+            <td><a href="{{ row.ссылка }}">{{ row.ссылка }}</a></td>
+            <td>{{ row.краткое_описание }}</td>
+            <td>{{ row.полное_описание }}</td>
+            <td>{{ row.уровень_сложности }}</td>
+            <td>{{ row.тег }}</td>
+            <td>{{ row.площадка }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

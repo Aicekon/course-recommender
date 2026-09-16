@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Статьи</title>
+</head>
+<body>
+    <h1>Статьи</h1>
+    <table border="1">
+        <tr>
+            <th>Id</th>
+            <th>Название</th>
+            <th>Ссылка</th>
+            <th>Просмотры</th>
+            <th>Дата публикации</th>
+            <th>Источник</th>
+            <th>Тег</th>
+            <th>Описание</th>
+            <th>Уровень сложности</th>
+            <th>Информативность</th>
+        </tr>
+        {% for row in rows %}
+        <tr>
+            <td>{{ row.id }}</td>
+            <td>{{ row.title }}</td>
+            <td>{{ row.link }}</td>
+            <td>{{ row.views }}</td>
+            <td>{{ row.date_published }}</td>
+            <td>{{ row.source }}</td>
+            <td>{{ row.tag }}</td>
+            <td>{{ row.description }}</td>
+            <td>{{ row.complexity_level }}</td>
+            <td>{{ row.informational_value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

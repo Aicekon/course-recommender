@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результаты теста</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .correct-answer { color: green; font-weight: bold; }
+        .wrong-answer { color: red; }
+        .course-card { transition: transform 0.2s; }
+        .course-card:hover { transform: scale(1.02); }
+        .article-card { transition: transform 0.2s; }
+        .article-card:hover { transform: scale(1.02); }
+        .difficulty-badge {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .difficulty-easy { background-color: #d4edda; color: #155724; }
+        .difficulty-normal { background-color: #fff3cd; color: #856404; }
+        .difficulty-hard { background-color: #f8d7da; color: #721c24; }
+        .views-icon { color: #6c757d; }
+        .chart-container { background: white; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .tag-btn {
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .active-tag { background-color: #0d6efd!important; color: white!important; }
+        .content-tag {
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .results-chart-container {
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .results-chart-img {
+        width: 100%;
+        height: auto;
+        min-height: 300px;  /* Минимальная высота */
+    }
+        .previous-attempt {
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        .improved { background-color: #d4edda; color: #155724; }
+        .worsened { background-color: #f8d7da; color: #721c24; }
+        .first-time { background-color: #e2e3e5; color: #383d41; }
+        .mini-chart {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        .repeat-stats-card {
+            margin-bottom: 20px;
+            border-left: 4px solid #0d6efd;
+        }
+        .repeat-stat-item {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .stat-improved { background-color: rgba(40, 167, 69, 0.1); }
+        .stat-worsened { background-color: rgba(220, 53, 69, 0.1); }
+
+        /* Новые стили для расположения тегов справа */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .tag-column {
+            width: 200px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            flex-shrink: 0;
+            order: 2;
+        }
+        .content-column {
+            flex: 1;
+            min-width: 0;
+            order: 1;
+        }
+        .tag-filter {
+            height: 100%;
+            overflow-y: auto;
+            max-height: calc(100vh - 40px);
+            border-left: 1px solid #dee2e6;
+            padding-left: 15px;
+        }
+        .tag-buttons-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .tag-column {
+                width: 100%;
+                position: static;
+                margin-bottom: 20px;
+                order: 1;
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid #dee2e6;
+                padding-top: 15px;
+            }
+            .content-column {
+                order: 2;
+            }
+            .tag-filter {
+                max-height: none;
+            }
+            .tag-buttons-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .tag-btn {
+                margin-bottom: 0;
+                flex: 1;
+                min-width: 100px;
+            }
+            .chart-legend {
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+        .chart-legend-item {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .chart-legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+        }
+
+        @media (max-width: 576px) {
+            .tag-btn {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<!-- Вставьте это вместо текущего содержимого body в results.html -->
+<body class="bg-light">
+    <div class="container py-4">
+        <div class="main-container">
+            <!-- Основное содержимое -->
+            <div class="content-column">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="text-center">Результаты тестирования</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Общая статистика -->
+                        <div class="alert alert-info mb-4">
+                            <h4 class="alert-heading">
+                                Ваш результат: {{ tag_stats.values()|sum(attribute='correct') }} /
+                                {{ tag_stats.values()|sum(attribute='total') }}
+                                {% set correct = tag_stats.values()|sum(attribute='correct') %}
+                                {% set total = tag_stats.values()|sum(attribute='total') %}
+                                ({{ (correct / total * 100 if total > 0 else 0)|round(1) }}%)
+                            </h4>
+                        </div>
+
+                        <!-- Статистика по повторным вопросам -->
+                        {% if repeat_stats %}
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Распределение вопросов
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% if repeat_chart_image %}
+                                <div class="text-center">
+                                    <img src="data:image/png;base64,{{ repeat_chart_image }}"
+                                         class="img-fluid" style="max-width: 90%;"
+                                         alt="Диаграмма распределения вопросов">
+                                </div>
+                                {% endif %}
+                                <div class="row mt-3 text-center">
+                                    <div class="col-3">
+                                        <span class="badge bg-info">Новые: {{ repeat_stats.new }}</span>
+                                    </div>
+                                    <div class="col-3">
+                                        <span class="badge bg-success">Улучшено: {{ repeat_stats.improved }}</span>
+                                    </div>
+                                    <div class="col-3">
+                                        <span class="badge bg-warning">Без изменений: {{ repeat_stats.unchanged }}</span>
+                                    </div>
+                                    <div class="col-3">
+                                        <span class="badge bg-danger">Ухудшено: {{ repeat_stats.worsened }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Результаты по тегам -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">Результаты по тегам:</h5>
+                            <div class="row">
+                                {% for tag, stats in tag_stats.items() %}
+                                <div class="col-md-4 col-sm-6 mb-2">
+                                    <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                        <span class="fw-bold">{{ tag }}:</span>
+                                        <span>
+                                            {{ stats.correct }}/{{ stats.total }}
+                                            ({{ (stats.correct / stats.total * 100) | round(1) }}%)
+                                        </span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Основная диаграмма результатов -->
+                        {% if chart_image %}
+                        <div class="chart-container mb-4">
+                            <img src="data:image/png;base64,{{ chart_image }}" alt="Результаты по тегам" class="results-chart-img">
+                        </div>
+                        {% endif %}
+
+                        <!-- Детали по ответам -->
+                        <div class="mb-4">
+                            <h4>Подробные результаты:</h4>
+                            <div class="accordion" id="answersAccordion">
+                                {% for answer in answers %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button {% if not answer.is_correct %}bg-light{% endif %}"
+                                                type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#answer{{ loop.index }}">
+                                            Вопрос {{ loop.index }}:
+                                            <span class="{% if answer.is_correct %}text-success{% else %}text-danger{% endif %} ms-2">
+                                                {{ 'Правильно' if answer.is_correct else 'Неправильно' }}
+                                            </span>
+                                            {% if answer.previous_attempts > 0 %}
+                                            <span class="previous-attempt
+                                                {% if answer.get('result_change') == 'improved' %}improved
+                                                {% elif answer.get('result_change') == 'worsened' %}worsened
+                                                {% else %}first-time{% endif %}">
+                                                {{ answer.get('previous_attempts', 0) }} попыт.
+                                                {% if answer.get('result_change') == 'improved' %}<i class="fas fa-arrow-up ms-1"></i>
+                                                {% elif answer.get('result_change') == 'worsened' %}<i class="fas fa-arrow-down ms-1"></i>
+                                                {% endif %}
+                                            </span>
+                                            {% endif %}
+                                        </button>
+                                    </h2>
+                                    <div id="answer{{ loop.index }}" class="accordion-collapse collapse"
+                                         data-bs-parent="#answersAccordion">
+                                        <div class="accordion-body">
+                                            <p><strong>Вопрос:</strong> {{ answer.question }}</p>
+                                            <p><strong>Ваш ответ:</strong>
+                                                <span class="{{ 'correct-answer' if answer.is_correct else 'wrong-answer' }}">
+                                                    {{ answer.user_answer }}
+                                                </span>
+                                            </p>
+                                            {% if not answer.is_correct %}
+                                            <p><strong>Правильный ответ:</strong>
+                                                <span class="correct-answer">{{ answer.correct_answers|join(', ') }}</span>
+                                            </p>
+                                            {% endif %}
+                                            <p><strong>Тема:</strong> <span class="badge bg-secondary">{{ answer.tag }}</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Рекомендуемые курсы -->
+                <div class="card mt-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Рекомендуемые курсы</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="courses-container">
+                            {% for course in recommended_courses %}
+                            <div class="col-md-6 mb-3 course-item"
+                                 data-tags="{% for tag in course[5] %}{{ tag|lower|replace(' ', '-') }} {% endfor %}">
+                                <div class="card course-card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ course[0] }}</h5>
+                                        <div class="d-flex flex-wrap mb-2">
+                                            {% for tag in course[5] %}
+                                            <span class="badge bg-secondary content-tag">{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        <p class="card-text text-muted">
+                                            <small>{{ course[3] }}</small>
+                                            <span class="ms-2 difficulty-badge difficulty-{{ course[4] }}">
+                                                {{ course[4] }}
+                                            </span>
+                                        </p>
+                                        <p class="card-text">{{ course[2] }}</p>
+                                        <a href="{{ course[1] }}" target="_blank"
+                                           class="btn btn-primary">Перейти к курсу</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Рекомендуемые статьи -->
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0"><i class="fas fa-newspaper me-2"></i>Рекомендуемые статьи</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="articles-container">
+                            {% for article in recommended_articles %}
+                            <div class="col-md-6 mb-3 article-item"
+                                 data-tags="{{ article[4]|lower|replace(' ', '-') }}">
+                                <div class="card article-card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ article[0] }}</h5>
+                                        <div class="d-flex justify-content-between text-muted mb-2">
+                                            <small>{{ article[3] }}</small>
+                                            <small>{{ article[2].strftime('%d.%m.%Y') }}</small>
+                                        </div>
+                                        <p class="card-text">
+                                            <span class="badge bg-secondary content-tag">{{ article[4] }}</span>
+                                            <span class="ms-2 difficulty-badge difficulty-{{ article[5] }}">
+                                                {{ article[5] }}
+                                            </span>
+                                            <span class="ms-2 views-icon">
+                                                <i class="fas fa-eye"></i> {{ article[6] }}
+                                            </span>
+                                        </p>
+                                        <a href="{{ article[1] }}" target="_blank"
+                                           class="btn btn-primary">Читать статью</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('select_tags') }}" class="btn btn-primary">
+                        <i class="fas fa-redo me-1"></i> Пройти тест снова
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-sign-out-alt me-1"></i> Выйти из системы
+                    </a>
+                </div>
+            </div>
+
+            <!-- Боковая панель с фильтрами -->
+            <div class="tag-column">
+                <div class="card shadow-sm tag-filter">
+                    <div class="card-body">
+                        <div class="tag-buttons-container">
+                            <button class="btn btn-outline-primary btn-sm tag-btn all-tags active-tag"
+                                    data-tag="all">
+                                Все теги
+                            </button>
+                            {% for tag in tag_stats.keys() %}
+                            <button class="btn btn-outline-primary btn-sm tag-btn"
+                                    data-tag="{{ tag|lower|replace(' ', '-') }}"
+                                    title="{{ tag }}">
+                                {{ tag }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript код остаётся без изменений
+        document.addEventListener('DOMContentLoaded', function() {
+            const tagButtons = document.querySelectorAll('.tag-btn');
+            const allTagsBtn = document.querySelector('.all-tags');
+            const courseItems = document.querySelectorAll('.course-item');
+            const articleItems = document.querySelectorAll('.article-item');
+
+            tagButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    tagButtons.forEach(btn => btn.classList.remove('active-tag'));
+                    this.classList.add('active-tag');
+
+                    const selectedTag = this.dataset.tag;
+
+                    if (selectedTag === 'all') {
+                        courseItems.forEach(item => item.style.display = 'block');
+                        articleItems.forEach(item => item.style.display = 'block');
+                    } else {
+                        courseItems.forEach(item => {
+                            item.style.display = item.dataset.tags.includes(selectedTag) ? 'block' : 'none';
+                        });
+                        articleItems.forEach(item => {
+                            item.style.display = item.dataset.tags.includes(selectedTag) ? 'block' : 'none';
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

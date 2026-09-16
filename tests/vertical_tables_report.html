@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Отчет по статьям и учебникам</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .table-container {
+            overflow: auto;
+            margin-bottom: 40px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Отчет по материалам</h1>
+
+    <h2>Статьи по категориям</h2>
+    <div class="table-container">
+        <table>
+<thead>
+<tr><th>Название статьи                                                                    </th><th>Тип статьи        </th></tr>
+</thead>
+<tbody>
+<tr><td>«Яндекс» представил программу конференции infra.conf&#x27;25                            </td><td>news/announcement </td></tr>
+<tr><td>Amazon представила Vulcan — первого робота с чувством осязания                     </td><td>news/announcement </td></tr>
+<tr><td>Как QA не утонуть в новом проекте. Часть 2: организация тестирования и документация</td><td>technical tutorial</td></tr>
+<tr><td>Калькулятор из iPhone в ReactOS                                                    </td><td>technical tutorial</td></tr>
+<tr><td>От релиз-менеджера до разработчика: почему я ушел из QA и не жалею                 </td><td>opinion/discussion</td></tr>
+<tr><td>Уменьшил синтаксис Си ради 15 байт                                                 </td><td>opinion/discussion</td></tr>
+</tbody>
+</table>
+    </div>
+
+    <h2>Технические учебники по уровням сложности</h2>
+    <div class="table-container">
+        <table>
+<thead>
+<tr><th>Название учебника                                                                       </th><th>Уровень сложности  </th></tr>
+</thead>
+<tbody>
+<tr><td>Как QA не утонуть в новом проекте. Часть 2: организация тестирования и документация     </td><td>hard               </td></tr>
+<tr><td>Работа с базой данных для джунов и вайбкодеров. Соединения                              </td><td>hard               </td></tr>
+<tr><td>Знакомство с Web Locks API                                                              </td><td>easy               </td></tr>
+<tr><td>Как освоить Linux за 64 часа, и почему я инвестировал в этот проект 1.5 года своей жизни</td><td>easy               </td></tr>
+<tr><td>Калькулятор из iPhone в ReactOS                                                         </td><td>normal             </td></tr>
+<tr><td>UI-челлендж: 30 виджетов за 30 дней. Часть 2                                            </td><td>normal             </td></tr>
+</tbody>
+</table>
+    </div>
+</body>
+</html>
