@@ -115,3 +115,6 @@ python app.py
 ├── docs/                       # Скриншоты
 └── requirements.txt
 ```
+## 🎬 Демонстрация
+
+https://github.com/user-attachments/assets/c6715b03-56a1-4599-82a3-7d62666b59d7
