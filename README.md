@@ -115,7 +115,3 @@ python app.py
 ├── docs/                       # Скриншоты
 └── requirements.txt
 ```
-
-### Результаты теста
-
-![Results](docs/screenshots/03_results.png)
